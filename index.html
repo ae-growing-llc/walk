@@ -5,408 +5,233 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="A&amp;E Walk" />
 <title>A&amp;E Growing Daily Walk</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 <style>
   :root {
-    --navy: #1f3a5f;
-    --gold: #d9a300;
-    --bg: #f6f8fb;
-    --card: #ffffff;
-    --text: #0f1d31;
-    --muted: #6b7280;
-    --good: #16a34a;
-    --warn: #b91c1c;
-    --line: #e5e7eb;
+    --navy: #1f3a5f; --gold: #d9a300; --bg: #f6f8fb; --card: #ffffff;
+    --text: #0f1d31; --muted: #6b7280; --good: #16a34a; --warn: #b91c1c;
+    --line: #e5e7eb; --harvest: #b45309; --photo: #2563eb;
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body {
     margin: 0; padding: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Noto Sans SC", "Segoe UI", sans-serif;
     background: var(--bg); color: var(--text);
-    height: 100%; overflow: hidden;
-    user-select: none;
+    height: 100%; overflow: hidden; user-select: none;
   }
-  .app { height: 100vh; display: flex; flex-direction: column; }
-  header {
-    background: var(--navy); color: #fff;
-    padding: 14px 16px 10px;
-  }
-  header .title { font-weight: 700; font-size: 16px; letter-spacing: 0.5px; }
-  header .sub { font-size: 11px; opacity: 0.75; margin-top: 2px; }
-  .progress-wrap { height: 6px; background: rgba(255,255,255,0.18); border-radius: 4px; margin-top: 10px; overflow: hidden; }
-  .progress-bar { height: 100%; background: var(--gold); width: 0%; transition: width 0.25s ease; }
-  main {
-    flex: 1; overflow-y: auto;
-    padding: 16px;
-    display: flex; flex-direction: column;
-    -webkit-overflow-scrolling: touch;
-  }
+  .app { height: 100vh; height: 100dvh; display: flex; flex-direction: column; }
+  header { background: var(--navy); color: #fff; padding: 14px 16px 12px; }
+  header .title { font-weight: 700; font-size: 18px; letter-spacing: 1px; }
+  header .sub { font-size: 12px; opacity: 0.8; margin-top: 3px; }
+  main { flex: 1; overflow-y: auto; padding: 16px; -webkit-overflow-scrolling: touch; }
   .screen { display: none; flex-direction: column; gap: 14px; }
   .screen.active { display: flex; }
-  .card {
-    background: var(--card); border-radius: 14px; padding: 18px;
-    box-shadow: 0 1px 3px rgba(15, 29, 49, 0.06);
-  }
-  h1 { font-size: 22px; margin: 0 0 10px; color: var(--navy); }
-  h2 { font-size: 14px; margin: 0 0 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
-  label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
-  input[type="text"], input[type="date"] {
-    width: 100%; font-size: 17px; padding: 14px 12px;
-    border: 1px solid var(--line); border-radius: 10px;
-    background: #fff; color: var(--text);
-    -webkit-appearance: none;
-  }
-  input:focus { outline: none; border-color: var(--navy); }
+  .card { background: var(--card); border-radius: 14px; padding: 18px; box-shadow: 0 1px 3px rgba(15,29,49,0.06); }
+  h1 { font-size: 22px; margin: 0 0 8px; color: var(--navy); }
+  h2 { font-size: 15px; margin: 4px 0 0; color: var(--muted); font-weight: 600; letter-spacing: 1px; }
 
-  /* Room screen */
-  .pill {
-    display: inline-block; background: var(--gold); color: #fff;
-    padding: 4px 10px; border-radius: 999px; font-size: 11px;
-    font-weight: 700; letter-spacing: 0.5px;
+  .pin-input {
+    width: 100%; font-size: 32px; text-align: center; letter-spacing: 6px;
+    padding: 16px; font-weight: 700; border: 1px solid var(--line);
+    border-radius: 10px; background: #fff; color: var(--text); -webkit-appearance: none;
   }
-  .pill.flower { background: #16a34a; }
-  .pill.veg { background: #2563eb; }
-  .pill.prop { background: #9333ea; }
-  .pill.dry { background: #b45309; }
-  .room-name {
-    font-size: 52px; font-weight: 800; color: var(--navy);
-    text-align: center; letter-spacing: 1px; margin: 4px 0 0;
-  }
-  .room-sub { text-align: center; color: var(--muted); font-size: 12px; margin-top: 2px; text-transform: uppercase; letter-spacing: 1px; }
-
-  .tag-input {
-    font-size: 32px !important; text-align: center; letter-spacing: 4px;
-    padding: 16px !important; font-weight: 700;
-    font-variant-numeric: tabular-nums;
-  }
-  .tag-input::placeholder { color: #cbd5e1; letter-spacing: 3px; font-weight: 500; }
+  .pin-input:focus { outline: none; border-color: var(--navy); }
 
   .btn {
-    display: flex; align-items: center; justify-content: center;
-    width: 100%; padding: 18px; border-radius: 12px;
-    font-size: 18px; font-weight: 700; border: none;
-    cursor: pointer; transition: transform 0.08s ease, opacity 0.15s;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    width: 100%; padding: 22px 18px; border-radius: 14px;
+    font-size: 24px; font-weight: 700; border: none; cursor: pointer;
+    font-family: inherit; transition: transform 0.08s ease, opacity 0.15s;
   }
-  .btn-sm { padding: 12px; font-size: 14px; }
-  .action-row { display: flex; gap: 8px; }
-  .action-row > .btn { flex: 1; }
   .btn:active { transform: scale(0.97); }
-  .btn-primary { background: var(--navy); color: #fff; }
-  .btn-harvest { background: #b45309; color: #fff; }
-  .btn-photo   { background: #2563eb; color: #fff; }
-  .btn-empty   { background: #475569; color: #fff; }
-  .btn-dry     { background: #0f766e; color: #fff; }
-  .btn-issue   { background: #fff; color: var(--warn); border: 2px solid var(--warn); }
-  .btn-back    { background: transparent; color: var(--muted); padding: 10px; font-size: 14px; font-weight: 500; }
-  .btn-send    { background: var(--gold); color: #fff; }
-  .btn-ghost   { background: #fff; color: var(--navy); border: 1px solid var(--line); }
   .btn:disabled { opacity: 0.4; pointer-events: none; }
+  .btn-primary { background: var(--navy); color: #fff; }
+  .btn-photo   { background: var(--photo); color: #fff; }
+  .btn-harvest { background: var(--harvest); color: #fff; }
+  .btn-harvest.done { background: var(--good); }
+  .btn-send    { background: var(--gold); color: #fff; }
+  .btn-ghost   { background: transparent; color: var(--muted); font-size: 15px; font-weight: 500; padding: 12px; }
 
-  .row { display: flex; gap: 10px; }
-  .row > * { flex: 1; }
+  /* Room grid */
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .tile {
+    position: relative; aspect-ratio: 1; border-radius: 14px;
+    background: #fff; border: 2px solid var(--line);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-size: 24px; font-weight: 800; color: var(--navy); cursor: pointer;
+    font-family: inherit; padding: 0;
+  }
+  .grid.five { grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  .grid.five .tile { font-size: 19px; }
+  .tile:active { transform: scale(0.96); }
+  .tile .badge { font-size: 12px; font-weight: 700; margin-top: 3px; min-height: 16px; }
+  .tile.has-photo { border-color: var(--photo); background: #eff6ff; }
+  .tile.has-photo .badge { color: var(--photo); }
+  .tile.harvested { border-color: var(--harvest); background: #fff7ed; }
+  .tile.harvested .badge { color: var(--harvest); }
 
-  /* Chips */
-  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
-  .chip {
-    background: #fff; border: 1px solid var(--line); border-radius: 999px;
-    padding: 10px 14px; font-size: 14px; font-weight: 500;
-    cursor: pointer;
-  }
-  .chip.active { background: var(--warn); color: #fff; border-color: var(--warn); }
-
-  /* Summary */
-  .summary-list { list-style: none; padding: 0; margin: 0; }
-  .summary-list li {
-    padding: 10px 0; border-bottom: 1px solid var(--line);
-    display: flex; justify-content: space-between; font-size: 14px;
-  }
-  .summary-list .room-label { font-weight: 600; }
-  .summary-list .val { color: var(--muted); font-variant-numeric: tabular-nums; }
-  .summary-list .val.issue { color: var(--warn); font-weight: 600; }
-  .summary-list .val.empty { color: #475569; font-weight: 600; }
-  .summary-list .val.harvest { color: #b45309; font-weight: 600; }
-  .summary-list li.has-photo { flex-direction: column; align-items: stretch; gap: 6px; }
-  .summary-list .photo-row { display: flex; justify-content: space-between; }
-  .summary-list .photo-thumb {
-    width: 100%; max-height: 180px; object-fit: cover;
-    border-radius: 8px; border: 1px solid var(--line);
-    margin-top: 4px;
-  }
-
-  /* Sanitation checks */
-  .check-row {
-    display: flex; align-items: center; gap: 12px;
-    padding: 14px 0; border-bottom: 1px solid var(--line);
-  }
-  .check-row:last-child { border-bottom: none; }
-  .check-row .box {
-    width: 32px; height: 32px; border-radius: 8px;
-    border: 2px solid var(--line); background: #fff;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 20px; color: transparent; flex-shrink: 0;
-  }
-  .check-row.checked .box { background: var(--good); border-color: var(--good); color: #fff; }
-  .check-row .label { font-size: 15px; flex: 1; }
-
-  .photo-grid {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
-  }
+  /* Room screen */
+  .room-name { font-size: 64px; font-weight: 800; color: var(--navy); text-align: center; letter-spacing: 1px; margin: 0; line-height: 1.1; }
+  .room-sub { text-align: center; color: var(--muted); font-size: 15px; margin-top: -8px; }
+  .photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
   .photo-grid:empty { display: none; }
-  .photo-tile {
-    position: relative; aspect-ratio: 1; border-radius: 10px;
-    overflow: hidden; border: 2px solid var(--good); background: #f1f5f9;
-  }
+  .photo-tile { position: relative; aspect-ratio: 1; border-radius: 10px; overflow: hidden; border: 2px solid var(--good); background: #f1f5f9; }
   .photo-tile img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .photo-tile .remove {
-    position: absolute; top: 4px; right: 4px;
-    width: 26px; height: 26px; border-radius: 50%;
-    background: rgba(15, 29, 49, 0.85); color: #fff;
-    border: none; font-size: 14px; font-weight: 700;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; padding: 0; line-height: 1;
+    position: absolute; top: 4px; right: 4px; width: 30px; height: 30px; border-radius: 50%;
+    background: rgba(15,29,49,0.85); color: #fff; border: none; font-size: 15px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; line-height: 1;
   }
-  .summary-list .photo-strip {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 4px;
-  }
-  .summary-list .photo-strip img {
-    width: 100%; aspect-ratio: 1; object-fit: cover;
-    border-radius: 6px; border: 1px solid var(--line);
-  }
-  .dry-row {
-    display: flex; align-items: center; gap: 8px;
-    padding: 8px 0; border-bottom: 1px solid var(--line);
-  }
-  .dry-row:last-child { border-bottom: none; }
-  .dry-row .name { width: 56px; font-weight: 600; font-size: 14px; color: var(--text); flex-shrink: 0; }
-  .dry-row input {
-    flex: 1; font-size: 16px; padding: 10px 8px;
-    border: 1px solid var(--line); border-radius: 8px;
-    text-align: center; letter-spacing: 2px;
-    -webkit-appearance: none; min-width: 0;
-    font-variant-numeric: tabular-nums;
-  }
-  .dry-row input:disabled { background: #f1f5f9; color: #94a3b8; }
-  .dry-row .empty-toggle {
-    background: #fff; border: 1px solid var(--line);
-    color: var(--text); padding: 8px 10px; border-radius: 8px;
-    font-size: 12px; font-weight: 700; cursor: pointer;
-    flex-shrink: 0;
-  }
-  .dry-row.is-empty .empty-toggle { background: #475569; color: #fff; border-color: #475569; }
-  .waste-card {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 24px 18px;
-  }
-  .stepper {
-    width: 64px; height: 64px; border-radius: 50%;
-    border: none; background: var(--navy); color: #fff;
-    font-size: 36px; font-weight: 700; line-height: 1;
-    cursor: pointer; -webkit-tap-highlight-color: transparent;
-  }
+  .bag-card { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; }
+  .stepper { width: 60px; height: 60px; border-radius: 50%; border: none; background: var(--navy); color: #fff; font-size: 34px; font-weight: 700; line-height: 1; cursor: pointer; font-family: inherit; }
   .stepper:active { transform: scale(0.94); }
   .stepper:disabled { background: #cbd5e1; }
-  .bag-count { text-align: center; }
-  .bag-num {
-    font-size: 64px; font-weight: 800; color: var(--navy);
-    line-height: 1; font-variant-numeric: tabular-nums;
-  }
-  .bag-label {
-    color: var(--muted); font-size: 13px; text-transform: uppercase;
-    letter-spacing: 1px; margin-top: 4px;
-  }
-  .jump-bar {
-    display: flex; align-items: center; gap: 8px;
-  }
-  .jump-bar select {
-    flex: 1; font-size: 13px; padding: 6px 28px 6px 10px; border-radius: 8px;
-    border: 1px solid var(--line); background: #fff; color: var(--muted);
-    -webkit-appearance: none; appearance: none;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='%236b7280' d='M0 0l5 6 5-6z'/></svg>");
-    background-repeat: no-repeat; background-position: right 10px center;
-  }
-  footer {
-    padding: 12px 16px; background: #fff; border-top: 1px solid var(--line);
-    display: flex; gap: 8px;
-  }
-  footer .btn-back { flex: 0 0 auto; width: auto; }
-  footer .info { flex: 1; text-align: right; font-size: 12px; color: var(--muted); align-self: center; }
+  .bag-num { font-size: 48px; font-weight: 800; color: var(--navy); line-height: 1; text-align: center; font-variant-numeric: tabular-nums; }
+  .bag-label { color: var(--muted); font-size: 15px; margin-top: 4px; text-align: center; }
+  .btn-skip { background: #475569; color: #fff; }
+  .btn-skip.done { background: var(--good); }
+  .tile.skipped { border-color: #475569; background: #f1f5f9; }
+  .tile.skipped .badge { color: #475569; }
+  .room-note { background: #fff7ed; border: 2px solid var(--harvest); color: #7c2d12; border-radius: 12px; padding: 12px 14px; font-size: 16px; font-weight: 600; text-align: center; line-height: 1.5; }
+  .missed-list { display: flex; flex-wrap: wrap; gap: 8px; }
+  .missed-list button { background: #fff; border: 2px solid var(--warn); color: var(--warn); border-radius: 10px; padding: 12px 16px; font-size: 20px; font-weight: 800; font-family: inherit; cursor: pointer; }
+  .note { text-align: center; color: var(--muted); font-size: 13px; }
+  .status { text-align: center; font-size: 16px; font-weight: 700; color: var(--harvest); min-height: 22px; }
+
+  footer { padding: 10px 16px; background: #fff; border-top: 1px solid var(--line); display: none; }
+  footer.show { display: block; }
+  footer .btn { padding: 16px; font-size: 20px; }
   .lang-row { display: flex; gap: 8px; }
-  .lang-btn {
-    flex: 1; padding: 10px; border-radius: 10px; border: 1px solid var(--line);
-    background: #fff; color: var(--navy); font-size: 15px; font-weight: 600; cursor: pointer;
-  }
+  .lang-btn { flex: 1; padding: 10px; border-radius: 10px; border: 1px solid var(--line); background: #fff; color: var(--navy); font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; }
   .lang-btn.on { background: var(--navy); color: #fff; border-color: var(--navy); }
-  .room-bldg {
-    text-align: center; color: var(--gold); font-size: 13px; font-weight: 700;
-    letter-spacing: 2px; text-transform: uppercase; margin-top: 6px;
-  }
-  .room-name.long { font-size: 30px; letter-spacing: 0; }
+  .room-name.long { font-size: 34px; letter-spacing: 0; }
+  .btn-status { background: #0f766e; color: #fff; font-size: 20px; }
+  .btn-status.done { background: var(--good); }
 </style>
 </head>
 <body>
 <div class="app">
   <header>
     <div class="title" id="hdrTitle">A&amp;E GROWING · DAILY WALK</div>
-    <div class="sub">License GAAI-7WUC-X8LI · DEA DCN W26095245E</div>
-    <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+    <div class="sub" id="headerSub"></div>
+    <div class="sub">OMMA GAAI-7WUC-X8LI · DEA DCN W26095245E</div>
   </header>
 
   <main>
-    <!-- START SCREEN -->
-    <section class="screen active" id="screen-start">
+    <!-- HOME: room grid -->
+    <section class="screen active" id="screen-home">
       <div class="lang-row">
         <button class="lang-btn" id="langEn" type="button">English</button>
         <button class="lang-btn" id="langZh" type="button">中文</button>
       </div>
-      <div class="card">
-        <h1 id="tStartH">Start today's walk</h1>
-        <label id="tDate">Date</label>
-        <input type="date" id="inputDate" />
-        <!-- initials removed Nov 16, 2026 (hidden input kept so the script needs no other changes) -->
-        <label id="tInit" style="display:none">Initials</label>
-        <input type="hidden" id="inputInitials" value="" />
-      </div>
-      <button class="btn btn-primary" id="btnStart">START WALK</button>
-      <button class="btn btn-ghost" id="btnResume" style="display:none">RESUME UNFINISHED WALK</button>
+      <div class="note" style="font-size:15px;" id="tHint"></div>
+      <h2 id="hA"></h2>
+      <div class="grid" id="gridA"></div>
+      <h2 id="hB"></h2>
+      <div class="grid" id="gridB"></div>
+      <h2 id="hC"></h2>
+      <div class="grid" id="gridC"></div>
+      <div style="height:4px"></div>
+      <button class="btn btn-send" id="btnSend" disabled></button>
+      <div class="note" id="sendNote"></div>
+      <button class="btn btn-ghost" id="btnReset"></button>
     </section>
 
-    <!-- ROOM SCREEN (one per room, rendered dynamically) -->
+    <!-- MISSED-ROOM CHECK -->
+    <section class="screen" id="screen-check">
+      <div class="card">
+        <h1 style="color:var(--warn)" id="tMissH"></h1>
+        <p style="margin:0 0 12px; font-size:15px; color:var(--muted);" id="tMissP"></p>
+        <div class="missed-list" id="missedList"></div>
+      </div>
+      <button class="btn btn-primary" id="btnCheckBack"></button>
+      <button class="btn btn-ghost" id="btnSendAnyway" style="color:var(--warn); font-size:17px; font-weight:700;"></button>
+    </section>
+
+    <!-- ROOM -->
     <section class="screen" id="screen-room">
-      <div class="jump-bar">
-        <select id="roomJump"></select>
-      </div>
-      <div class="room-bldg" id="roomBldg">Building A</div>
       <div class="room-name" id="roomName">A1</div>
-      <div class="room-sub" id="roomSub">Pull a tag · last 6</div>
-
-      <div class="card" id="tagCard">
-        <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6"
-               class="tag-input" id="inputTag" placeholder="000000" />
-      </div>
-
+      <div class="room-sub" id="roomSub"></div>
+      <div class="room-note" id="roomNote" style="display:none"></div>
+      <div class="status" id="roomStatus"></div>
       <div id="photoGrid" class="photo-grid"></div>
-      <div id="photoCount" style="display:none; text-align:center; color:var(--muted); font-size:11px; margin-top:-6px;">0 / 5</div>
-
-      <button class="btn btn-primary" id="btnNext">NEXT →</button>
-      <button class="btn btn-primary" id="btnOk" style="display:none">OK</button>
-      <button class="btn btn-dry" id="btnDrying" style="display:none">DRYING · PRODUCT HANGING</button>
-      <button class="btn btn-ghost" id="btnStorage" style="display:none">STORAGE ONLY · NOTHING HANGING</button>
-      <button class="btn btn-photo" id="btnPhoto" style="display:none">📷 ADD PHOTO</button>
+      <button class="btn btn-photo" id="btnPhoto">📷 拍照</button>
       <input type="file" id="inputImage" accept="image/*" multiple style="display:none" />
-
-      <div class="action-row" id="actionRow">
-        <button class="btn btn-empty btn-sm" id="btnEmpty">EMPTY</button>
-        <button class="btn btn-harvest btn-sm" id="btnHarvested" style="display:none">HARVESTED</button>
-      </div>
-      <div id="harvestNote" style="display:none; text-align:center; color:#b45309; font-size:13px; font-weight:600;"></div>
-    </section>
-
-
-
-
-    <!-- WASTE SCREEN -->
-    <section class="screen" id="screen-waste">
-      <h1 style="margin:0" id="tWasteH">Non-MMJ waste</h1>
-      <p style="margin:0; color:var(--muted); font-size:14px;" id="tWasteP">How many bags of plant / stalk waste went out today?</p>
-      <div class="card waste-card">
-        <button class="stepper" id="bagsMinus" aria-label="decrease">−</button>
-        <div class="bag-count">
-          <div class="bag-num" id="bagNum">0</div>
-          <div class="bag-label" id="tBags">bags</div>
-        </div>
-        <button class="stepper" id="bagsPlus" aria-label="increase">+</button>
-      </div>
-      <button class="btn btn-primary" id="btnToSummary">REVIEW & SEND</button>
-    </section>
-
-    <!-- SUMMARY / SEND -->
-    <section class="screen" id="screen-summary">
-      <h1 style="margin:0" id="tSumH">Review walk</h1>
-      <div class="card">
-        <h2 id="tSumHdr">Header</h2>
-        <div id="summaryHeader" style="font-size:14px"></div>
-      </div>
-      <div class="card">
-        <h2 id="tSumRooms">Rooms</h2>
-        <ul class="summary-list" id="summaryRooms"></ul>
-      </div>
-      <div class="card">
-        <h2 id="tSumWaste">Non-MMJ waste</h2>
-        <ul class="summary-list" id="summaryWaste"></ul>
-      </div>
-      <button class="btn btn-send" id="btnSend">📄 BUILD PDF & EMAIL</button>
-      <div class="action-row">
-        <button class="btn btn-ghost btn-sm" id="btnEditFromSummary">Back to edit</button>
-        <button class="btn btn-ghost btn-sm" id="btnResetAll" style="color:var(--warn)">Discard</button>
+      <button class="btn btn-harvest" id="btnHarvested"></button>
+      <button class="btn btn-status" id="btnDrying" style="display:none"></button>
+      <button class="btn btn-status" id="btnStorage" style="display:none"></button>
+      <button class="btn btn-skip" id="btnSkip" style="display:none">⏭ 跳过</button>
+      <div class="card bag-card">
+        <button class="stepper" id="bagsMinus" aria-label="减少">−</button>
+        <div><div class="bag-num" id="bagNum">0</div><div class="bag-label" id="tBags"></div></div>
+        <button class="stepper" id="bagsPlus" aria-label="增加">+</button>
       </div>
     </section>
   </main>
 
-  <footer>
-    <button class="btn btn-back" id="btnBack">← Back</button>
-    <div class="info" id="footerInfo"></div>
+  <footer id="footer">
+    <button class="btn btn-primary" id="btnBack"></button>
   </footer>
 </div>
 
 <script>
-  // ---------- FACILITY CONFIG (everything site-specific lives here) ----------
-  const CONFIG = {
-    company: "A&E Growing LLC",
-    license: "GAAI-7WUC-X8LI",
-    deaDcn: "W26095245E",       // DEA Form 225 control number (Timely Applicant)
-    sendTo: "",                 // email the PDF goes to. Blank = walker picks the address in the share sheet.
-    filePrefix: "AE_Daily_Walk_Log",
-    subjectPrefix: "A&E Daily Walk Log"
-  };
-
   // ---------- DATA ----------
-  // sec: "flower" = whiteboard photo (no typing) · "dry" = drying room / storage · bldg = building letter
-  // Building A = A1-A6 · Building B = B1 · Building C = Drying Room / Storage
+  // ---------- FACILITY CONFIG ----------
+  const COMPANY = "A&E Growing LLC", LICENSE = "GAAI-7WUC-X8LI", DEA_DCN = "W26095245E";
+  // Building A = A1-A6 (flower) · Building B = B1 (flower) · Building C = Drying Room / Storage
   const ROOMS = [
     { sec: "flower", bldg: "A", name: "A1" }, { sec: "flower", bldg: "A", name: "A2" }, { sec: "flower", bldg: "A", name: "A3" },
     { sec: "flower", bldg: "A", name: "A4" }, { sec: "flower", bldg: "A", name: "A5" }, { sec: "flower", bldg: "A", name: "A6" },
     { sec: "flower", bldg: "B", name: "B1" },
-    { sec: "dry",    bldg: "C", name: "Drying Room / Storage" }
+    { sec: "dry",    bldg: "C", name: "C" }
   ];
-
-  const SEC_LABEL = { flower: "FLOWER", veg: "VEG", prop: "PROP", dry: "DRYING ROOM / STORAGE" };
+  const MAX_PHOTOS = 10;
+  const SEND_TO = "";   // blank = the walker picks the address in the share sheet
 
   // ---------- LANGUAGE (screens only · the PDF is always English for the binder) ----------
-  // English is the default. Open the page with ?lang=zh for Mandarin, or tap the button on the start screen.
+  // English is the default. Open the page with ?lang=zh for Mandarin, or tap the button on the home screen.
   const LANG_KEY = "ae_walk_lang";
-  const INITIALS_KEY = "ae_walk_initials";
   const T = {
     en: {
-      title: "A&E GROWING · DAILY WALK", startH: "Start today's walk", date: "Date", initials: "Initials",
-      start: "START WALK", startNew: "START NEW WALK", resume: "RESUME UNFINISHED WALK",
-      next: "NEXT →", ok: "OK", drying: "DRYING · PRODUCT HANGING", storage: "STORAGE ONLY · NOTHING HANGING",
-      empty: "EMPTY", harvested: "HARVESTED", bldg: "Building {x}", dryName: "Drying Room / Storage",
-      subFlower: "Pull a tag · last 6", subVeg: "Take a photo of the whiteboard", harvestNote: "Room harvested? Tap HARVESTED, then erase the whiteboard.", subDry: "Anything hanging to dry?", subProp: "Confirm status",
-      photos: "photos", addAnother: "ADD ANOTHER", roomPhoto: "ROOM PHOTO", boardPhoto: "WHITEBOARD PHOTO",
-      processing: "Processing…", photoFail: "photo(s) couldn't be saved. Try a smaller picture.",
-      wasteH: "Non-MMJ waste", wasteP: "How many bags of plant / stalk waste went out today?", bags: "bags",
-      toSummary: "REVIEW & SEND", sumH: "Review walk", sumHdr: "Header", sumRooms: "Rooms", photosCap: "Photos",
-      buildPdf: "BUILD PDF & EMAIL", backEdit: "Back to edit", discard: "Discard", discardQ: "Discard this walk and start over?",
-      back: "← Back", fWaste: "Waste", fReview: "Review",
-      vEmpty: "EMPTY", vHarvested: "HARVESTED", cleaned: "cleaned", vDrying: "DRYING", vStorage: "STORAGE ONLY",
-      bagsOut: "Bags out today", building: "Building PDF…", opening: "Opening share…"
+      title: "A&E GROWING · DAILY WALK", hint: "Tap a room → photo / harvested / empty / waste bags",
+      bldg: "Building {x}", flower: "Flower room", dryName: "Drying Room / Storage",
+      send: "📤 SEND", none: "Nothing recorded yet", sumLine: "{p} photos · {h} harvested · {b} waste bags",
+      left: "{n} room(s) not recorded yet", allDone: "✓ All rooms recorded",
+      reset: "Clear and start over", resetQ: "Clear everything recorded today?",
+      missH: "⚠️ Some rooms have no entry", missP: "Tap a room to go fill it in",
+      checkBack: "← Go back and finish", sendAnyway: "Send anyway",
+      photo: "📷 TAKE PHOTO", photoMore: "📷 ADD ANOTHER", processing: "Processing…",
+      harvest: "✂️ HARVESTED", harvestDone: "✓ HARVESTED", harvestStatus: "Harvested {d} (tap again to undo)",
+      harvestNote: "Room harvested? Tap HARVESTED, then erase the whiteboard.",
+      empty: "EMPTY", emptyDone: "✓ EMPTY (tap again to undo)",
+      drying: "DRYING · PRODUCT HANGING", storage: "STORAGE ONLY · NOTHING HANGING",
+      bags: "🗑 Waste bags", back: "← Back to rooms",
+      bHarv: "Harvested", bEmpty: "Empty", bDry: "Drying", bStore: "Storage",
+      building: "Building PDF…", photoFail: "{n} photo(s) could not be saved. Please retake.",
+      pdfFail: "Could not build the PDF: ", pdfLib: "PDF library not loaded. Check the internet connection.",
+      downloaded: "PDF downloaded: {f}. Attach it to an email and send it."
     },
     zh: {
-      title: "A&E GROWING · 每日巡查", startH: "开始今天的巡查", date: "日期", initials: "姓名缩写(英文字母)",
-      start: "开始巡查", startNew: "开始新的巡查", resume: "继续未完成的巡查",
-      next: "下一步 →", ok: "确认", drying: "正在晾干 · 有产品悬挂", storage: "只有存放 · 没有悬挂",
-      empty: "空房", harvested: "已收割", bldg: "{x} 栋", dryName: "晾干房 / 仓库",
-      subFlower: "取一个植株标签 · 输入最后 6 位数字", subVeg: "拍白板照片", harvestNote: "房间收割了?点「已收割」,然后把白板擦干净。", subDry: "有产品在晾干吗?", subProp: "确认状态",
-      photos: "张照片", addAnother: "再加一张", roomPhoto: "拍房间照片", boardPhoto: "拍白板照片",
-      processing: "处理中…", photoFail: "张照片无法保存,请换小一点的照片。",
-      wasteH: "非大麻废弃物", wasteP: "今天运出了多少袋植物 / 茎秆废料?", bags: "袋",
-      toSummary: "检查并发送", sumH: "检查巡查记录", sumHdr: "基本信息", sumRooms: "房间", photosCap: "照片",
-      buildPdf: "生成 PDF 并发送邮件", backEdit: "返回修改", discard: "放弃", discardQ: "放弃这次巡查并重新开始?",
-      back: "← 返回", fWaste: "废弃物", fReview: "检查",
-      vEmpty: "空房", vHarvested: "已收割", cleaned: "已清洁", vDrying: "正在晾干", vStorage: "只有存放",
-      bagsOut: "今天运出袋数", building: "正在生成 PDF…", opening: "正在打开分享…"
+      title: "A&E GROWING · 每日记录", hint: "点选房间 → 拍照 / 已收割 / 空房 / 垃圾袋数",
+      bldg: "{x} 栋", flower: "开花房", dryName: "晾干房 / 仓库",
+      send: "📤 发送", none: "还没有记录", sumLine: "照片 {p} 张 · 已收割 {h} 间 · 垃圾 {b} 袋",
+      left: "还有 {n} 间没有记录", allDone: "✓ 全部房间已记录",
+      reset: "清空重来", resetQ: "清空今天的全部记录?",
+      missH: "⚠️ 还有房间没有记录", missP: "点房间名可以直接去补",
+      checkBack: "← 返回补充", sendAnyway: "不补了,直接发送",
+      photo: "📷 拍照", photoMore: "📷 再拍一张", processing: "处理中…",
+      harvest: "✂️ 已收割", harvestDone: "✓ 已收割", harvestStatus: "已收割 {d}(再点一次取消)",
+      harvestNote: "房间收割了?点「已收割」,然后把白板擦干净。",
+      empty: "空房", emptyDone: "✓ 空房(再点一次取消)",
+      drying: "正在晾干 · 有产品悬挂", storage: "只有存放 · 没有悬挂",
+      bags: "🗑 垃圾袋数", back: "← 返回房间列表",
+      bHarv: "已收割", bEmpty: "空房", bDry: "晾干", bStore: "存放",
+      building: "正在生成…", photoFail: "有 {n} 张照片没有保存成功,请重拍。",
+      pdfFail: "生成失败:", pdfLib: "PDF 组件未加载,请检查网络",
+      downloaded: "文件已下载:{f}。请用邮件发送。"
     }
   };
   let LANG = "en";
@@ -417,12 +242,10 @@
     else if (saved === "zh" || saved === "en") LANG = saved;
   } catch (e) {}
   function t(k) { return (T[LANG] && T[LANG][k]) || T.en[k] || k; }
-  function bldgLabel(r) { return t("bldg").replace("{x}", r.bldg); }
-  function roomLabel(r) { return r.sec === "dry" ? t("dryName") : r.name; }
-  function savedInitials() { try { return localStorage.getItem(INITIALS_KEY) || ""; } catch (e) { return ""; } }
+  const pdfRoom = r => r.sec === "dry" ? "Drying Room / Storage" : r.name;
 
-  // ---------- PHOTO STORAGE (IndexedDB — localStorage caps at ~5MB on iOS) ----------
-  const IDB_NAME = "ae_walk_photos";
+  // ---------- PHOTO STORAGE (IndexedDB) ----------
+  const IDB_NAME = "ae_walk_photos_v2";
   const IDB_STORE = "photos";
   let _dbPromise = null;
   function openPhotoDB() {
@@ -435,137 +258,194 @@
     });
     return _dbPromise;
   }
-  function idbPut(key, val) {
+  function idbOp(mode, fn) {
     return openPhotoDB().then(db => new Promise((resolve, reject) => {
-      const tx = db.transaction(IDB_STORE, "readwrite");
-      tx.objectStore(IDB_STORE).put(val, key);
-      tx.oncomplete = resolve;
+      const tx = db.transaction(IDB_STORE, mode);
+      const r = fn(tx.objectStore(IDB_STORE));
+      tx.oncomplete = () => resolve(r && r.result);
       tx.onerror = () => reject(tx.error);
     }));
   }
-  function idbGet(key) {
-    return openPhotoDB().then(db => new Promise((resolve, reject) => {
-      const tx = db.transaction(IDB_STORE, "readonly");
-      const r = tx.objectStore(IDB_STORE).get(key);
-      r.onsuccess = () => resolve(r.result);
-      r.onerror = () => reject(r.error);
-    }));
-  }
-  function idbDelete(key) {
-    return openPhotoDB().then(db => new Promise((resolve, reject) => {
-      const tx = db.transaction(IDB_STORE, "readwrite");
-      tx.objectStore(IDB_STORE).delete(key);
-      tx.oncomplete = resolve;
-      tx.onerror = () => reject(tx.error);
-    }));
-  }
-  function idbClear() {
-    return openPhotoDB().then(db => new Promise((resolve, reject) => {
-      const tx = db.transaction(IDB_STORE, "readwrite");
-      tx.objectStore(IDB_STORE).clear();
-      tx.oncomplete = resolve;
-      tx.onerror = () => reject(tx.error);
-    }));
-  }
-  function photoKey(roomName, photoId) { return `${roomName}|${photoId}`; }
+  const idbPut = (key, val) => idbOp("readwrite", s => s.put(val, key));
+  const idbGet = key => idbOp("readonly", s => s.get(key));
+  const idbDelete = key => idbOp("readwrite", s => s.delete(key));
+  const idbClear = () => idbOp("readwrite", s => s.clear());
+  const photoKey = (room, id) => `${room}|${id}`;
 
   // ---------- STATE ----------
-  const STORAGE_KEY = "ae_walk_v2";
-  let state = loadState() || initState();
-
-  function initState() {
-    return {
-      date: todayISO(),
-      initials: "",
-      idx: -1,            // -1 = start screen; 0..ROOMS.length-1 = room idx; "sanitation" or "summary" handled separately
-      stage: "start",     // start | room | sanitation | waste | summary
-      results: {},        // room name -> { value: "1234" | "EMPTY" | "ISSUE", issues: [], }
-      waste: { bags: 0 }
-    };
-  }
-  function loadState() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return null;
-      const s = JSON.parse(raw);
-      return s;
-    } catch (e) { return null; }
-  }
-  // Strip heavy image dataUrls before persisting — they live in IndexedDB.
-  function saveState() {
-    try {
-      const lite = JSON.parse(JSON.stringify(state));
-      if (lite.results) {
-        for (const k in lite.results) {
-          const imgs = lite.results[k].images || [];
-          lite.results[k].images = imgs.map(img => ({ name: img.name, id: img.id }));
-        }
-      }
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(lite));
-    } catch (e) {
-      console.error("saveState failed", e);
-    }
-  }
-  function clearState() {
-    localStorage.removeItem(STORAGE_KEY);
-    idbClear().catch(()=>{});
-  }
-  // Resolve a photo's dataUrl on demand (from memory if present, else IDB).
-  async function getPhotoDataUrl(roomName, img) {
-    if (img.dataUrl) return img.dataUrl;
-    if (img.id) {
-      try { return await idbGet(photoKey(roomName, img.id)); }
-      catch (e) { console.error("idbGet failed", e); return null; }
-    }
-    return null;
-  }
+  const STORAGE_KEY = "ae_walk_v3";
   function todayISO() {
     const d = new Date();
-    const tz = d.getTimezoneOffset() * 60000;
-    return new Date(d.getTime() - tz).toISOString().slice(0, 10);
+    return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
   }
+  function initState() { return { date: todayISO(), room: null, results: {} }; }
+  function loadState() {
+    try { const raw = localStorage.getItem(STORAGE_KEY); return raw ? JSON.parse(raw) : null; }
+    catch (e) { return null; }
+  }
+  function saveState() {
+    try {
+      const lite = { date: state.date, room: null, results: {} };
+      for (const k in state.results) {
+        const r = state.results[k];
+        lite.results[k] = {
+          harvested: !!r.harvested, harvestDate: r.harvestDate || null, bags: r.bags || 0, skipped: !!r.skipped, status: r.status || null,
+          images: (r.images || []).map(i => ({ id: i.id, name: i.name }))
+        };
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(lite));
+    } catch (e) { console.error("saveState failed", e); }
+  }
+  let state = loadState();
+  // New day = fresh record
+  if (!state || state.date !== todayISO()) {
+    state = initState();
+    idbClear().catch(() => {});
+    saveState();
+  }
+  function resOf(name) {
+    if (!state.results[name]) state.results[name] = { harvested: false, harvestDate: null, bags: 0, images: [] };
+    return state.results[name];
+  }
+  function hasEntry(name) {
+    const r = state.results[name];
+    return !!r && (r.harvested || r.skipped || !!r.status || (r.bags || 0) > 0 || (r.images || []).length > 0);
+  }
+  function prune(name) { if (!hasEntry(name)) delete state.results[name]; }
 
   // ---------- DOM ----------
-  const screens = {
-    start: document.getElementById("screen-start"),
-    room: document.getElementById("screen-room"),
-    waste: document.getElementById("screen-waste"),
-    summary: document.getElementById("screen-summary"),
-  };
-  const inputDate = document.getElementById("inputDate");
-  const inputInitials = document.getElementById("inputInitials");
-  const btnStart = document.getElementById("btnStart");
-  const btnResume = document.getElementById("btnResume");
-  const progressBar = document.getElementById("progressBar");
-  const footerInfo = document.getElementById("footerInfo");
-  const btnBack = document.getElementById("btnBack");
+  const $ = id => document.getElementById(id);
+  const screens = { home: $("screen-home"), room: $("screen-room"), check: $("screen-check") };
+  const missedRooms = () => ROOMS.filter(r => !hasEntry(r.name)).map(r => r.name);
+  const footer = $("footer");
+  const btnSend = $("btnSend"), sendNote = $("sendNote"), btnReset = $("btnReset");
+  const roomName = $("roomName"), roomSub = $("roomSub"), roomStatus = $("roomStatus");
+  const photoGrid = $("photoGrid"), btnPhoto = $("btnPhoto"), inputImage = $("inputImage");
+  const btnHarvested = $("btnHarvested"), btnBack = $("btnBack");
+  const grids = { A: $("gridA"), B: $("gridB"), C: $("gridC") };
 
-  const roomName = document.getElementById("roomName");
-  const roomSub  = document.getElementById("roomSub");
-  const roomBldg = document.getElementById("roomBldg");
-  const btnStorage = document.getElementById("btnStorage");
-  const harvestNote = document.getElementById("harvestNote");
-  const inputTag = document.getElementById("inputTag");
-  const btnEmpty = document.getElementById("btnEmpty");
-  const btnNext  = document.getElementById("btnNext");
-  const btnHarvested = document.getElementById("btnHarvested");
-  const btnOk = document.getElementById("btnOk");
-  const btnDrying = document.getElementById("btnDrying");
-  const tagCard = document.getElementById("tagCard");
-  const btnPhoto = document.getElementById("btnPhoto");
-  const inputImage = document.getElementById("inputImage");
-  const photoGrid = document.getElementById("photoGrid");
-  const photoCount = document.getElementById("photoCount");
-  const roomJump = document.getElementById("roomJump");
-
-  // Per-room photo limit override, e.g. { "A1": 10 }
-  const PHOTO_LIMITS = {};
-  const DEFAULT_PHOTO_LIMIT = 5;
-  function maxPhotosFor(roomName) {
-    return PHOTO_LIMITS[roomName] || DEFAULT_PHOTO_LIMIT;
+  function fmtDateZh(iso) { const [y, m, d] = iso.split("-"); return `${y}年${+m}月${+d}日`; }
+  function fmtDate(iso) {
+    if (LANG === "zh") return fmtDateZh(iso);
+    const [y, m, d] = iso.split("-"); return `${+m}/${+d}/${y}`;
   }
 
-  // Compress an image File into a smaller JPEG (smaller = fits more in localStorage)
+  function show(name) {
+    Object.values(screens).forEach(s => s.classList.remove("active"));
+    screens[name].classList.add("active");
+    footer.classList.toggle("show", name === "room");
+    document.querySelector("main").scrollTop = 0;
+  }
+
+  // ---------- HOME ----------
+  function renderHome() {
+    Object.values(grids).forEach(g => g.innerHTML = "");
+    let rooms = 0, photos = 0, harvests = 0, bagsTotal = 0;
+    ROOMS.forEach(r => {
+      const res = state.results[r.name];
+      const n = res ? (res.images || []).length : 0;
+      const hv = !!(res && res.harvested);
+      const bg = res ? (res.bags || 0) : 0;
+      const b = document.createElement("button");
+      const sk = !!(res && res.skipped);
+      b.className = "tile" + (hv ? " harvested" : (sk ? " skipped" : ((n || bg || (res && res.status)) ? " has-photo" : "")));
+      b.dataset.room = r.name;
+      const bits = [];
+      if (hv) bits.push(t("bHarv"));
+      if (sk) bits.push(t("bEmpty"));
+      if (res && res.status) bits.push(t(res.status === "DRYING" ? "bDry" : "bStore"));
+      if (n) bits.push(`📷${n}`);
+      if (bg) bits.push(`🗑${bg}`);
+      const badge = bits.join(" ");
+      b.innerHTML = `<span>${r.name}</span><span class="badge">${badge}</span>`;
+      grids[r.bldg].appendChild(b);
+      if (hv || n || bg || sk || (res && res.status)) rooms++;
+      photos += n; bagsTotal += bg; if (hv) harvests++;
+    });
+    btnSend.disabled = rooms === 0;
+    sendNote.textContent = rooms === 0 ? t("none") : t("sumLine").replace("{p}", photos).replace("{h}", harvests).replace("{b}", bagsTotal) +
+      "\n" + (ROOMS.length - rooms > 0 ? t("left").replace("{n}", ROOMS.length - rooms) : t("allDone"));
+    sendNote.style.whiteSpace = "pre-line";
+    btnReset.style.display = rooms === 0 ? "none" : "flex";
+  }
+  function openRoom(name) { state.room = name; renderRoom(); show("room"); }
+  $("missedList").addEventListener("click", e => {
+    const t = e.target.closest("button");
+    if (t) openRoom(t.dataset.room);
+  });
+  $("btnCheckBack").addEventListener("click", () => { renderHome(); show("home"); });
+  $("btnSendAnyway").addEventListener("click", () => { renderHome(); show("home"); send(true); });
+  screens.home.addEventListener("click", e => {
+    const t = e.target.closest(".tile");
+    if (!t) return;
+    state.room = t.dataset.room;
+    renderRoom();
+    show("room");
+  });
+  btnReset.addEventListener("click", () => {
+    if (!confirm(t("resetQ"))) return;
+    idbClear().catch(() => {});
+    state = initState();
+    saveState();
+    renderHome();
+  });
+
+  // ---------- ROOM ----------
+  function roomDef() { return ROOMS.find(r => r.name === state.room); }
+  async function hydrate(name) {
+    const res = state.results[name];
+    if (!res) return;
+    for (const img of res.images || []) {
+      if (!img.dataUrl && img.id) {
+        try { img.dataUrl = await idbGet(photoKey(name, img.id)); } catch (_) {}
+      }
+    }
+  }
+  async function renderRoom() {
+    const r = roomDef();
+    const isDry = r.sec === "dry";
+    roomName.textContent = isDry ? t("dryName") : r.name;
+    roomName.classList.toggle("long", isDry);
+    roomSub.textContent = t("bldg").replace("{x}", r.bldg) + (isDry ? "" : " · " + t("flower"));
+    btnHarvested.style.display = isDry ? "none" : "flex";
+    $("btnDrying").style.display = isDry ? "flex" : "none";
+    $("btnStorage").style.display = isDry ? "flex" : "none";
+    $("roomNote").style.display = isDry ? "none" : "block";
+    $("roomNote").textContent = t("harvestNote");
+    $("btnSkip").style.display = "flex";
+    $("tBags").textContent = t("bags");
+    await hydrate(r.name);
+    const res = state.results[r.name] || { images: [] };
+    const images = (res.images || []).filter(i => i.dataUrl);
+    photoGrid.innerHTML = "";
+    images.forEach((img, i) => {
+      const tile = document.createElement("div");
+      tile.className = "photo-tile";
+      tile.innerHTML = `<img src="${img.dataUrl}" alt=""><button class="remove" data-id="${img.id}" aria-label="删除">✕</button>`;
+      photoGrid.appendChild(tile);
+    });
+    $("btnSkip").classList.toggle("done", !!res.skipped);
+    $("btnSkip").textContent = res.skipped ? t("emptyDone") : t("empty");
+    $("btnDrying").classList.toggle("done", res.status === "DRYING");
+    $("btnDrying").textContent = (res.status === "DRYING" ? "✓ " : "") + t("drying");
+    $("btnStorage").classList.toggle("done", res.status === "STORAGE");
+    $("btnStorage").textContent = (res.status === "STORAGE" ? "✓ " : "") + t("storage");
+    $("bagNum").textContent = res.bags || 0;
+    $("bagsMinus").disabled = !(res.bags > 0);
+    const n = (res.images || []).length;
+    btnPhoto.disabled = n >= MAX_PHOTOS;
+    btnPhoto.textContent = n === 0 ? t("photo") : `${t("photoMore")} (${n}/${MAX_PHOTOS})`;
+    if (res.harvested) {
+      btnHarvested.classList.add("done");
+      btnHarvested.textContent = t("harvestDone");
+      roomStatus.textContent = t("harvestStatus").replace("{d}", fmtDate(res.harvestDate || state.date));
+    } else {
+      btnHarvested.classList.remove("done");
+      btnHarvested.textContent = t("harvest");
+      roomStatus.textContent = "";
+    }
+  }
+
   function compressImage(file, maxDim = 800, quality = 0.55) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -590,486 +470,87 @@
     });
   }
 
-  // Populate jump-to-room dropdown (grouped by building; rebuilt when the language changes)
-  function populateJump() {
-    roomJump.innerHTML = "";
-    let lastB = "";
-    let g = null;
-    ROOMS.forEach((r, i) => {
-      if (r.bldg !== lastB) {
-        g = document.createElement("optgroup");
-        g.label = bldgLabel(r);
-        roomJump.appendChild(g);
-        lastB = r.bldg;
-      }
-      const opt = document.createElement("option");
-      opt.value = i;
-      opt.textContent = roomLabel(r);
-      g.appendChild(opt);
-    });
-  }
-  populateJump();
-
-  roomJump.addEventListener("change", () => {
-    const idx = parseInt(roomJump.value, 10);
-    if (!isNaN(idx)) {
-      state.idx = idx;
-      renderRoom();
-      saveState();
-    }
-  });
-
-
-  const btnToSummary = document.getElementById("btnToSummary");
-
-  const summaryHeader = document.getElementById("summaryHeader");
-  const summaryRooms = document.getElementById("summaryRooms");
-  const btnSend = document.getElementById("btnSend");
-  const btnEditFromSummary = document.getElementById("btnEditFromSummary");
-  const btnResetAll = document.getElementById("btnResetAll");
-
-  // ---------- NAV ----------
-  function show(stage) {
-    state.stage = stage;
-    Object.values(screens).forEach(s => s.classList.remove("active"));
-    if (stage === "start") screens.start.classList.add("active");
-    else if (stage === "room") screens.room.classList.add("active");
-    else if (stage === "waste") screens.waste.classList.add("active");
-    else if (stage === "summary") screens.summary.classList.add("active");
-    updateProgress();
-    updateFooter();
-    saveState();
-  }
-
-  function updateProgress() {
-    const total = ROOMS.length + 2; // rooms + waste + summary
-    let done = 0;
-    if (state.stage === "room") done = state.idx;
-    else if (state.stage === "waste") done = ROOMS.length;
-    else if (state.stage === "summary") done = ROOMS.length + 1;
-    progressBar.style.width = Math.max(0, Math.min(100, (done / total) * 100)) + "%";
-  }
-
-  function updateFooter() {
-    if (state.stage === "start") footerInfo.textContent = "";
-    else if (state.stage === "room") footerInfo.textContent = `${state.idx + 1} / ${ROOMS.length}`;
-    else if (state.stage === "waste") footerInfo.textContent = t("fWaste");
-    else footerInfo.textContent = t("fReview");
-    btnBack.style.visibility = (state.stage === "start") ? "hidden" : "visible";
-  }
-
-  // ---------- START ----------
-  function renderStart() {
-    inputDate.value = state.date || todayISO();
-    inputInitials.value = state.initials || savedInitials();
-    const hasProgress = state.idx > -1 || Object.keys(state.results).length > 0;
-    btnResume.style.display = hasProgress ? "block" : "none";
-    btnStart.textContent = hasProgress ? t("startNew") : t("start");
-  }
-  function startWalk() {
-    try {
-      let initials = (inputInitials.value || "").trim().toUpperCase();
-      idbClear().catch(()=>{}); // fresh walk = fresh photo store
-      state = initState();
-      state.date = inputDate.value || todayISO();
-      state.initials = initials;
-      state.idx = 0;
-      renderRoom();
-      show("room");
-    } catch (err) {
-      alert("START WALK error: " + (err && err.message ? err.message : err));
-      console.error(err);
-    }
-  }
-  btnStart.addEventListener("click", startWalk);
-  btnStart.addEventListener("touchend", function(e){ e.preventDefault(); startWalk(); });
-  btnResume.addEventListener("click", () => {
-    state.date = inputDate.value || state.date;
-    state.initials = (inputInitials.value || state.initials).toUpperCase();
-    if (state.stage === "start") {
-      if (Object.keys(state.results).length >= ROOMS.length) {
-        renderWaste();
-        show("waste");
-      } else {
-        state.idx = Math.max(0, Object.keys(state.results).length);
-        renderRoom();
-        show("room");
-      }
-    } else {
-      if (state.stage === "room") renderRoom();
-      show(state.stage);
-    }
-  });
-
-  // ---------- ROOM ----------
-  function renderRoom() {
-    const r = ROOMS[state.idx];
-    roomJump.value = state.idx;
-    roomName.textContent = roomLabel(r);
-    roomName.classList.toggle("long", r.sec === "dry");
-    roomBldg.textContent = bldgLabel(r);
-    const existing = state.results[r.name];
-    const isFlower = (r.sec === "flower");
-    const isVeg    = (r.sec === "veg");
-    const isDry    = (r.sec === "dry");
-    // Reset UI
-    tagCard.style.display      = "none";
-    btnNext.style.display      = "none";
-    btnHarvested.style.display = "none";
-    harvestNote.style.display  = "none";
-    btnOk.style.display        = "none";
-    btnDrying.style.display    = "none";
-    btnStorage.style.display   = "none";
-    btnPhoto.style.display     = "none";
-    photoGrid.innerHTML        = "";
-    photoCount.style.display   = "none";
-    inputImage.value           = "";
-
-    if (isFlower) {
-      // photo only: no tag typing. A whiteboard photo is required (or EMPTY / HARVESTED).
-      btnNext.style.display      = "flex";
-      btnHarvested.style.display = "flex";
-      harvestNote.style.display  = "block";
-      harvestNote.textContent    = t("harvestNote");
-      roomSub.textContent = t("subVeg");
-      renderPhotoGrid();
-    } else if (isVeg) {
-      btnNext.style.display  = "flex";
-      renderPhotoGrid();
-      roomSub.textContent = t("subVeg");
-    } else if (isDry) {
-      btnDrying.style.display = "flex";
-      btnStorage.style.display = "flex";
-      renderPhotoGrid(); // optional photo of what's hanging
-      roomSub.textContent = t("subDry");
-    } else {
-      btnOk.style.display = "flex";
-      renderPhotoGrid(); // optional whiteboard photo for prop too
-      roomSub.textContent = t("subProp");
-    }
-  }
-
-  inputTag.addEventListener("input", () => {
-    inputTag.value = inputTag.value.replace(/\D/g, "").slice(0, 6);
-  });
-  btnNext.addEventListener("click", () => {
-    const r = ROOMS[state.idx];
-    if (r.sec === "flower") {
-      const existing = state.results[r.name] || {};
-      if ((existing.images || []).length > 0) {
-        if (existing.value !== "PHOTO") saveRoom("PHOTO");
-        advance();
-      }
-      return;
-    } else if (r.sec === "veg") {
-      const existing = state.results[r.name];
-      if (!existing || existing.value !== "PHOTO") return;
-      advance();
-    } else {
-      advance();
-    }
-  });
-
-  async function hydrateImages(roomName) {
-    const res = state.results[roomName];
-    if (!res || !res.images) return;
-    for (const img of res.images) {
-      if (!img.dataUrl && img.id) {
-        try { img.dataUrl = await idbGet(photoKey(roomName, img.id)); } catch (_) {}
-      }
-    }
-  }
-
-  async function renderPhotoGrid() {
-    const r = ROOMS[state.idx];
-    await hydrateImages(r.name);
-    const res = state.results[r.name] || {};
-    const images = res.images || [];
-    const isVeg = r.sec === "veg" || r.sec === "flower"; // photo required
-    photoGrid.innerHTML = "";
-    images.forEach((img, i) => {
-      const tile = document.createElement("div");
-      tile.className = "photo-tile";
-      tile.innerHTML = `<img src="${img.dataUrl}" alt="photo ${i+1}"><button class="remove" data-idx="${i}" aria-label="remove">✕</button>`;
-      photoGrid.appendChild(tile);
-    });
-    if (images.length) {
-      photoCount.textContent = `${images.length} / ${maxPhotosFor(r.name)} ${t("photos")}`;
-      photoCount.style.display = "block";
-    } else {
-      photoCount.style.display = "none";
-    }
-    const atMax = images.length >= maxPhotosFor(r.name);
-    btnPhoto.style.display = atMax ? "none" : "flex";
-    if (isVeg) {
-      btnPhoto.textContent = images.length === 0 ? "📷 " + t("boardPhoto") : `📷 ${t("addAnother")} (${images.length}/${maxPhotosFor(r.name)})`;
-      btnNext.disabled = images.length === 0;
-    } else {
-      const firstLabel = r.sec === "dry" ? "📷 " + t("roomPhoto") : "📷 " + t("boardPhoto");
-      btnPhoto.textContent = images.length === 0 ? firstLabel : `📷 ${t("addAnother")} (${images.length}/${maxPhotosFor(r.name)})`;
-      btnNext.disabled = false; // flower / dry: photo is optional
-    }
-  }
-
-  photoGrid.addEventListener("click", (e) => {
-    const btn = e.target.closest(".remove");
-    if (!btn) return;
-    const r = ROOMS[state.idx];
-    const res = state.results[r.name] || { images: [] };
-    const i = parseInt(btn.dataset.idx, 10);
-    if (Number.isInteger(i)) {
-      const removed = res.images.splice(i, 1)[0];
-      if (removed && removed.id) idbDelete(photoKey(r.name, removed.id)).catch(()=>{});
-      if (res.images.length === 0) {
-        // no photos left — clear PHOTO marker
-        delete state.results[r.name];
-      } else {
-        state.results[r.name] = res;
-      }
-      try { saveState(); } catch (_) {}
-      renderPhotoGrid();
-    }
-  });
-
   btnPhoto.addEventListener("click", () => inputImage.click());
-  inputImage.addEventListener("change", async (e) => {
+  inputImage.addEventListener("change", async e => {
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
-    const r = ROOMS[state.idx];
-    const prev = state.results[r.name] || { images: [], issues: [] };
-    const images = prev.images || [];
+    const name = state.room;
+    const res = resOf(name);
     btnPhoto.disabled = true;
     btnPhoto.textContent = t("processing");
     let failed = 0;
     for (const file of files) {
-      if (images.length >= maxPhotosFor(r.name)) break;
+      if (res.images.length >= MAX_PHOTOS) break;
       try {
         const dataUrl = await compressImage(file);
         const id = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-        await idbPut(photoKey(r.name, id), dataUrl);
-        images.push({ dataUrl, id, name: `${state.date}_${r.name.replace(/[^A-Za-z0-9_-]/g, "_")}_${images.length + 1}.jpg` });
-      } catch (err) {
-        console.error("photo save failed", err);
-        failed++;
-      }
+        await idbPut(photoKey(name, id), dataUrl);
+        res.images.push({ dataUrl, id, name: `${state.date}_${name}_${res.images.length + 1}.jpg` });
+      } catch (err) { console.error("photo save failed", err); failed++; }
     }
-    state.results[r.name] = {
-      value: "PHOTO",
-      issues: prev.issues || [],
-      images
-    };
+    prune(name);
     saveState();
-    btnPhoto.disabled = false;
     inputImage.value = "";
-    renderPhotoGrid();
-    if (failed) alert(failed + " " + t("photoFail"));
+    await renderRoom();
+    if (failed) alert(t("photoFail").replace("{n}", failed));
   });
-  btnEmpty.addEventListener("click", () => {
-    saveRoom("EMPTY");
-    advance();
+  photoGrid.addEventListener("click", e => {
+    const btn = e.target.closest(".remove");
+    if (!btn) return;
+    const name = state.room;
+    const res = state.results[name];
+    if (!res) return;
+    const i = res.images.findIndex(x => x.id === btn.dataset.id);
+    if (i < 0) return;
+    const removed = res.images.splice(i, 1)[0];
+    idbDelete(photoKey(name, removed.id)).catch(() => {});
+    prune(name);
+    saveState();
+    renderRoom();
   });
   btnHarvested.addEventListener("click", () => {
-    const r = ROOMS[state.idx];
-    const prev = state.results[r.name] || {};
-    state.results[r.name] = {
-      value: "HARVESTED",
-      harvestDate: todayISO(),
-      cleanDone: true,
-      images: prev.images || [],
-      issues: prev.issues || []
-    };
+    const name = state.room;
+    const res = resOf(name);
+    if (res.harvested) { res.harvested = false; res.harvestDate = null; }
+    else { res.harvested = true; res.harvestDate = todayISO(); res.skipped = false; }
+    prune(name);
     saveState();
-    advance();
+    renderRoom();
   });
-  btnOk.addEventListener("click", () => {
-    saveRoom("OK");
-    advance();
-  });
-  btnDrying.addEventListener("click", () => {
-    saveRoom("DRYING");
-    advance();
-  });
-  btnStorage.addEventListener("click", () => {
-    saveRoom("STORAGE");
-    advance();
-  });
-
-  function saveRoom(value) {
-    const name = ROOMS[state.idx].name;
-    const prev = state.results[name] || {};
-    state.results[name] = {
-      value,
-      issues: prev.issues || [],
-      images: prev.images || []
-    };
+  $("btnSkip").addEventListener("click", () => {
+    const name = state.room;
+    const res = resOf(name);
+    res.skipped = !res.skipped;
+    if (res.skipped) { res.harvested = false; res.harvestDate = null; res.status = null; }
+    prune(name);
     saveState();
-  }
-
-  function advance() {
-    if (state.idx + 1 >= ROOMS.length) {
-      renderWaste();
-      show("waste");
-    } else {
-      state.idx += 1;
-      renderRoom();
-      show("room");
-    }
-  }
-
-
-  // ---------- WASTE ----------
-  const bagsMinus = document.getElementById("bagsMinus");
-  const bagsPlus  = document.getElementById("bagsPlus");
-  const bagNum    = document.getElementById("bagNum");
-
-  function renderWaste() {
-    if (!state.waste) state.waste = { bags: 0 };
-    bagNum.textContent = state.waste.bags;
-    bagsMinus.disabled = state.waste.bags <= 0;
-  }
-  bagsMinus.addEventListener("click", () => {
-    state.waste.bags = Math.max(0, (state.waste.bags || 0) - 1);
-    renderWaste(); saveState();
+    renderRoom();
   });
-  bagsPlus.addEventListener("click", () => {
-    state.waste.bags = (state.waste.bags || 0) + 1;
-    renderWaste(); saveState();
-  });
+  function bumpBags(d) {
+    const name = state.room;
+    const res = resOf(name);
+    res.bags = Math.max(0, (res.bags || 0) + d);
+    prune(name);
+    saveState();
+    renderRoom();
+  }
+  $("bagsMinus").addEventListener("click", () => bumpBags(-1));
+  $("bagsPlus").addEventListener("click", () => bumpBags(1));
+  function setStatus(v) {
+    const name = state.room;
+    const res = resOf(name);
+    res.status = res.status === v ? null : v;
+    if (res.status) res.skipped = false;
+    prune(name);
+    saveState();
+    renderRoom();
+  }
+  $("btnDrying").addEventListener("click", () => setStatus("DRYING"));
+  $("btnStorage").addEventListener("click", () => setStatus("STORAGE"));
+  btnBack.addEventListener("click", () => { state.room = null; renderHome(); show("home"); });
+  btnSend.addEventListener("click", () => send());
 
-  btnToSummary.addEventListener("click", () => {
-    renderSummary();
-    show("summary");
-  });
-
-  // ---------- SUMMARY ----------
-  async function hydrateAll() {
-    for (const r of ROOMS) await hydrateImages(r.name);
-  }
-  async function renderSummary() {
-    await hydrateAll();
-    renderSummarySync();
-  }
-  function renderSummarySync() {
-    const totalPhotos = Object.values(state.results).reduce((sum, r) => sum + ((r && r.images && r.images.length) || 0), 0);
-    summaryHeader.innerHTML = `<strong>${t("date")}:</strong> ${state.date}` +
-      (totalPhotos ? `<br/><strong>${t("photosCap")}:</strong> ${totalPhotos}` : "");
-    btnSend.textContent = totalPhotos ? `📄 ${t("buildPdf")} · 📷 ${totalPhotos}` : `📄 ${t("buildPdf")}`;
-    summaryRooms.innerHTML = "";
-    ROOMS.forEach(r => {
-      const res = state.results[r.name];
-      const li = document.createElement("li");
-      let val = "—";
-      let cls = "val";
-      if (res) {
-        if (res.value === "EMPTY") { val = t("vEmpty"); cls = "val empty"; }
-        else if (res.value === "HARVESTED") {
-          val = `${t("vHarvested")} ${res.harvestDate || state.date}${res.cleanDone ? " · " + t("cleaned") : ""}`;
-          cls = "val harvest";
-        }
-        else if (res.value === "OK") { val = "OK"; }
-        else if (res.value === "DRYING") { val = t("vDrying"); }
-        else if (res.value === "STORAGE") { val = t("vStorage"); }
-        else if (res.value === "PHOTO") { val = "📷"; }
-        else if (/^\d+$/.test(res.value)) { val = `…${res.value}`; }
-        else if (res.value === "ISSUE") { val = "ISSUE"; cls = "val issue"; }
-      }
-      if (res?.issues?.length) {
-        val += ` ⚑ ${res.issues.join(", ")}`;
-        cls = "val issue";
-      }
-      const photos = (res && res.images) || [];
-      if (photos.length) {
-        li.className = "has-photo";
-        const photoTxt = `📷 ${photos.length}`;
-        val = (res && res.value && res.value !== "PHOTO") ? `${val} · ${photoTxt}` : photoTxt;
-        cls = "val";
-        const strip = photos.map(p => `<img src="${p.dataUrl}" alt="${r.name}" />`).join("");
-        li.innerHTML = `
-          <div class="photo-row">
-            <span class="room-label">${r.bldg} · ${roomLabel(r)}</span>
-            <span class="${cls}">${val}</span>
-          </div>
-          <div class="photo-strip">${strip}</div>
-        `;
-      } else {
-        li.innerHTML = `<span class="room-label">${r.bldg} · ${roomLabel(r)}</span><span class="${cls}">${val}</span>`;
-      }
-      summaryRooms.appendChild(li);
-    });
-    // Waste
-    const summaryWaste = document.getElementById("summaryWaste");
-    summaryWaste.innerHTML = "";
-    const bags = (state.waste && state.waste.bags) || 0;
-    const liw = document.createElement("li");
-    liw.innerHTML = `<span class="room-label">${t("bagsOut")}</span><span class="val">${bags}</span>`;
-    summaryWaste.appendChild(liw);
-  }
-
-  function buildEmailBody() {
-    const lines = [];
-    lines.push(`${CONFIG.company} · Daily Walk Log`);
-    lines.push(`License ${CONFIG.license} · DEA DCN ${CONFIG.deaDcn}`);
-    lines.push(`Date: ${state.date}`);
-    lines.push(`Recorded by: ${state.initials}`);
-    lines.push("");
-    let lastSec = "";
-    ROOMS.forEach(r => {
-      if (r.sec !== lastSec) {
-        lines.push("");
-        lines.push(`-- ${SEC_LABEL[r.sec]} --`);
-        lastSec = r.sec;
-      }
-      const res = state.results[r.name];
-      let val = "—";
-      if (res) {
-        if (res.value === "EMPTY") val = "EMPTY";
-        else if (res.value === "HARVESTED") val = "HARVESTED";
-        else if (res.value === "OK") val = "OK";
-        else if (res.value === "DRYING") val = "DRYING";
-        else if (res.value === "PHOTO") val = `${(res.images || []).length} photo(s) attached`;
-        else if (/^\d+$/.test(res.value)) val = `tag ...${res.value}`;
-        else if (res.value === "ISSUE") val = "ISSUE";
-      }
-      lines.push(`  ${r.name.padEnd(12, " ")} ${val}`);
-    });
-    lines.push("");
-    lines.push(`-- NON-MMJ WASTE --`);
-    lines.push(`  Bags out today: ${(state.waste && state.waste.bags) || 0}`);
-    return lines.join("\n");
-  }
-  function buildSubject() {
-    const [y, m, d] = state.date.split("-");
-    return `${CONFIG.subjectPrefix} – ${m}/${d}/${y}`;
-  }
-  function dataURLtoFile(dataurl, filename) {
-    try {
-      const arr = dataurl.split(",");
-      const mime = arr[0].match(/:(.*?);/)[1];
-      const bstr = atob(arr[1]);
-      let n = bstr.length;
-      const u8arr = new Uint8Array(n);
-      while (n--) u8arr[n] = bstr.charCodeAt(n);
-      return new File([u8arr], filename, { type: mime });
-    } catch (e) { return null; }
-  }
-
-  function collectPhotos() {
-    const files = [];
-    Object.keys(state.results).forEach(name => {
-      const res = state.results[name];
-      const imgs = (res && res.images) || [];
-      const safeName = name.replace(/[^A-Za-z0-9_-]/g, "_");
-      imgs.forEach((img, i) => {
-        if (!img.dataUrl || !img.dataUrl.startsWith("data:image")) return;
-        const fname = img.name || `${state.date}_${safeName}_${i+1}.jpg`;
-        const f = dataURLtoFile(img.dataUrl, fname);
-        if (f) files.push(f);
-      });
-    });
-    return files;
-  }
-
-  // ---------- PDF GENERATION ----------
+  // ---------- PDF (English, for the compliance inbox) ----------
   function getImageDims(dataUrl) {
     return new Promise(resolve => {
       const img = new Image();
@@ -1078,37 +559,22 @@
       img.src = dataUrl;
     });
   }
-
-  function fmtResultForPDF(res) {
-    if (!res) return "—";
-    if (res.value === "EMPTY") return "EMPTY";
-    if (res.value === "HARVESTED") {
-      const d = res.harvestDate || state.date;
-      const clean = res.cleanDone ? "post-harvest cleaning complete" : "cleaning pending";
-      return `HARVESTED ${d} · ${clean}`;
-    }
-    if (res.value === "OK") return "OK";
-    if (res.value === "DRYING") {
-      const n = (res.images || []).length;
-      return n ? `DRYING · PRODUCT HANGING · ${n} photo(s) attached` : "DRYING · PRODUCT HANGING";
-    }
-    if (res.value === "STORAGE") {
-      const n = (res.images || []).length;
-      return n ? `STORAGE ONLY · NOTHING HANGING · ${n} photo(s) attached` : "STORAGE ONLY · NOTHING HANGING";
-    }
-    if (res.value === "PHOTO") return `${(res.images || []).length} photo(s) attached`;
-    if (/^\d+$/.test(res.value)) return `tag ...${res.value}`;
-    if (res.value === "ISSUE") return "ISSUE";
-    return res.value || "—";
+  function fmtResult(res) {
+    const parts = [];
+    if (res.harvested) parts.push(`HARVESTED ${res.harvestDate || state.date} · post-harvest cleaning complete`);
+    if (res.skipped) parts.push("EMPTY");
+    if (res.status === "DRYING") parts.push("DRYING · PRODUCT HANGING");
+    if (res.status === "STORAGE") parts.push("STORAGE ONLY · NOTHING HANGING");
+    const n = (res.images || []).length;
+    if (n) parts.push(`${n} photo(s) attached`);
+    return parts.join(" · ") || "-";
   }
-
   async function buildPDF() {
-    if (!window.jspdf || !window.jspdf.jsPDF) throw new Error("PDF library not loaded — check internet connection.");
-    await hydrateAll();
+    if (!window.jspdf || !window.jspdf.jsPDF) throw new Error(t("pdfLib"));
+    for (const r of ROOMS) await hydrate(r.name);
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ unit: "pt", format: "letter" });
     const W = 612, H = 792, M = 40;
-
     function drawHeader(small) {
       doc.setFillColor(31, 58, 95);
       doc.rect(0, 0, W, small ? 36 : 60, "F");
@@ -1118,224 +584,139 @@
       doc.text("DAILY WALK LOG", M, small ? 18 : 28);
       doc.setFont("helvetica", "normal");
       doc.setFontSize(8);
-      doc.text(`${CONFIG.company} · ${CONFIG.license} · DEA DCN ${CONFIG.deaDcn}`, M, small ? 30 : 44);
+      doc.text(`${COMPANY} · ${LICENSE} · DEA DCN ${DEA_DCN}`, M, small ? 30 : 44);
       if (!small) {
         doc.setFont("helvetica", "bold");
         doc.setFontSize(10);
-        doc.text(`${state.date}`, W - M, 28, { align: "right" });
+        doc.text(state.date, W - M, 28, { align: "right" });
       }
       doc.setTextColor(0);
     }
-
-    function sectionTable(label, rooms, startY) {
-      const hasIssues = rooms.some(name => (state.results[name]?.issues || []).length > 0);
-      const head = hasIssues ? [[label, "Result", "Issues"]] : [[label, "Result"]];
-      const body = rooms.map(name => {
-        const res = state.results[name];
-        const row = [name, fmtResultForPDF(res)];
-        if (hasIssues) row.push((res?.issues || []).join(", "));
-        return row;
-      });
-      const columnStyles = hasIssues
-        ? { 0: { cellWidth: 70, fontStyle: "bold" }, 1: { cellWidth: 160 }, 2: { cellWidth: "auto" } }
-        : { 0: { cellWidth: 210, fontStyle: "bold" }, 1: { cellWidth: "auto" } };
-      doc.autoTable({
-        head, body, startY,
-        theme: "striped",
-        headStyles: { fillColor: [31, 58, 95], textColor: 255, fontSize: 9, fontStyle: "bold" },
-        bodyStyles: { fontSize: 9, cellPadding: 4 },
-        margin: { left: M, right: M },
-        columnStyles
-      });
-      return doc.lastAutoTable.finalY;
-    }
-
-    // ---- PAGE 1: header + tables + sanitation + waste ----
     drawHeader();
-    let y = 76;
-
-    // one table per section, in walk order (FLOWER, then DRY, plus VEG/PROP if ever added)
-    const bldgs = [];
-    ROOMS.forEach(r => { if (!bldgs.includes(r.bldg)) bldgs.push(r.bldg); });
-    for (const b of bldgs) {
-      const rs = ROOMS.filter(r => r.bldg === b);
-      if (y > H - 160) { doc.addPage(); drawHeader(true); y = 56; }
-      y = sectionTable(`BUILDING ${b} · ${SEC_LABEL[rs[0].sec]}`, rs.map(r => r.name), y) + 14;
-    }
-
-    // Waste
-    if (y > H - 120) { doc.addPage(); drawHeader(true); y = 56; }
+    const body = ROOMS.filter(r => hasEntry(r.name))
+      .map(r => [pdfRoom(r), `Bldg ${r.bldg} · ${r.sec === "dry" ? "DRY / STORAGE" : "FLOWER"}`, fmtResult(Object.assign({ _name: r.name }, state.results[r.name])), String(state.results[r.name].bags || 0)]);
+    const bagsTotal = ROOMS.reduce((t, r) => t + ((state.results[r.name] || {}).bags || 0), 0);
+    body.push(["TOTAL", "", "Non-MMJ waste bags out today", String(bagsTotal)]);
     doc.autoTable({
-      head: [["NON-MMJ WASTE", "Count"]],
-      body: [["Bags out today", String((state.waste && state.waste.bags) || 0)]],
-      startY: y,
-      theme: "striped",
+      head: [["Room", "Building / Type", "Result", "Waste bags"]], body, startY: 76, theme: "striped",
       headStyles: { fillColor: [31, 58, 95], textColor: 255, fontSize: 10, fontStyle: "bold" },
       bodyStyles: { fontSize: 10, cellPadding: 5 },
       margin: { left: M, right: M },
-      columnStyles: { 0: { fontStyle: "bold" } }
+      columnStyles: { 0: { cellWidth: 115, fontStyle: "bold" }, 1: { cellWidth: 125 }, 2: { cellWidth: "auto" }, 3: { cellWidth: 70, halign: "center" } }
     });
-    y = doc.lastAutoTable.finalY + 24;
-
-    // Signatures
+    let y = doc.lastAutoTable.finalY + 22;
+    const missed = missedRooms();
+    doc.setFont("helvetica", "bold"); doc.setFontSize(10);
+    if (missed.length) {
+      doc.setTextColor(185, 28, 28);
+      const lines = doc.splitTextToSize(`ROOMS WITH NO ENTRY (${missed.length}): ${missed.join(", ")}`, W - 2 * M);
+      doc.text(lines, M, y); y += lines.length * 13;
+    } else {
+      doc.setTextColor(22, 163, 74);
+      doc.text(`All ${ROOMS.length} rooms have an entry.`, M, y); y += 13;
+    }
+    doc.setTextColor(0);
+    y += 17;
     if (y > H - 80) { doc.addPage(); drawHeader(true); y = 80; }
-    doc.setDrawColor(180);
-    doc.setLineWidth(0.5);
-    doc.line(M, y + 10, M + 220, y + 10);
-    doc.line(M + 260, y + 10, M + 480, y + 10);
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(9);
-    doc.setTextColor(102);
-    doc.text("Recorded by:", M, y + 22);
-    doc.text(`Date: ${state.date}`, M + 260, y + 22);
+    doc.setFont("helvetica", "normal"); doc.setFontSize(9); doc.setTextColor(102);
+    doc.text("Recorded by:", M, y);
+    doc.text(`Date: ${state.date}`, M + 260, y);
     doc.setTextColor(0);
 
-    // ---- PHOTO PAGES (any room with images) ----
     for (const r of ROOMS) {
-      const photos = (state.results[r.name]?.images) || [];
+      const photos = ((state.results[r.name] || {}).images || []).filter(p => p.dataUrl);
       for (let i = 0; i < photos.length; i++) {
-        const photo = photos[i];
         doc.addPage();
         drawHeader(true);
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(12);
-        doc.text(`Building ${r.bldg} · ${r.name} · photo ${i + 1} of ${photos.length}`, M, 56);
-
-        const dims = await getImageDims(photo.dataUrl);
-        const availW = W - 2 * M;
-        const availH = H - 90 - M;
+        doc.setFont("helvetica", "bold"); doc.setFontSize(12);
+        doc.text(`Building ${r.bldg} · ${pdfRoom(r)} - photo ${i + 1} of ${photos.length}`, M, 56);
+        const dims = await getImageDims(photos[i].dataUrl);
+        const availW = W - 2 * M, availH = H - 90 - M;
         let drawW = availW, drawH = drawW * dims.h / dims.w;
         if (drawH > availH) { drawH = availH; drawW = drawH * dims.w / dims.h; }
-        const x = M + (availW - drawW) / 2;
-        try { doc.addImage(photo.dataUrl, "JPEG", x, 72, drawW, drawH); }
+        try { doc.addImage(photos[i].dataUrl, "JPEG", M + (availW - drawW) / 2, 72, drawW, drawH); }
         catch (e) { console.error("addImage failed", e); }
       }
     }
-
-    // ---- Footer page numbers ----
     const total = doc.internal.getNumberOfPages();
     for (let p = 1; p <= total; p++) {
       doc.setPage(p);
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(8);
-      doc.setTextColor(140);
+      doc.setFont("helvetica", "normal"); doc.setFontSize(8); doc.setTextColor(140);
       doc.text(`Page ${p} of ${total}`, W - M, H - 20, { align: "right" });
-      if (CONFIG.sendTo) doc.text(`Email to ${CONFIG.sendTo}`, M, H - 20);
+      if (SEND_TO) doc.text(`Email to ${SEND_TO}`, M, H - 20);
     }
-
     return doc.output("blob");
   }
 
-  async function sendWalk() {
-    const to = CONFIG.sendTo;
-    const subj = buildSubject();
-    btnSend.disabled = true;
-    btnSend.textContent = t("building");
-    let pdfBlob;
-    try {
-      pdfBlob = await buildPDF();
-    } catch (err) {
-      btnSend.disabled = false;
-      renderSummary();
-      alert("Couldn't build PDF: " + (err.message || err));
+  async function send(force) {
+    const missed = missedRooms();
+    if (force !== true && missed.length) {
+      $("missedList").innerHTML = missed.map(n => `<button data-room="${n}">${n}</button>`).join("");
+      show("check");
       return;
     }
-
-    const filename = `${CONFIG.filePrefix}_${state.date}.pdf`;
-    const pdfFile = new File([pdfBlob], filename, { type: "application/pdf" });
-
-    btnSend.textContent = t("opening");
-
-    // Try Web Share API with the PDF file
-    if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+    const [y, m, d] = state.date.split("-");
+    const subj = `A&E Daily Walk Log – ${m}/${d}/${y}`;
+    const filename = `AE_Daily_Walk_Log_${state.date}.pdf`;
+    btnSend.disabled = true;
+    btnSend.textContent = t("building");
+    let blob;
+    try { blob = await buildPDF(); }
+    catch (err) {
+      alert(t("pdfFail") + (err.message || err));
+      btnSend.textContent = t("send"); renderHome();
+      return;
+    }
+    const file = new File([blob], filename, { type: "application/pdf" });
+    btnSend.textContent = t("send"); renderHome();
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
       try {
-        await navigator.share({
-          title: subj,
-          text: to ? `To: ${to}\nSubject: ${subj}` : subj,
-          files: [pdfFile]
-        });
-        btnSend.disabled = false;
-        renderSummary();
+        await navigator.share({ title: subj, text: SEND_TO ? `To: ${SEND_TO}\nSubject: ${subj}` : subj, files: [file] });
         return;
       } catch (err) {
-        if (err && err.name === "AbortError") {
-          btnSend.disabled = false;
-          renderSummary();
-          return;
-        }
-        // fall through to download fallback
+        if (err && err.name === "AbortError") return;
       }
     }
-
-    // Fallback: download PDF + open mailto so user attaches manually
-    const url = URL.createObjectURL(pdfBlob);
+    const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url; a.download = filename;
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 2000);
-    alert(`PDF downloaded as ${filename}. Open Mail next, attach it${to ? `, and send to ${to}` : ""}.`);
-    window.location.href = `mailto:${to}?subject=${encodeURIComponent(subj)}`;
-    btnSend.disabled = false;
-    renderSummary();
+    alert(t("downloaded").replace("{f}", filename));
+    window.location.href = `mailto:${SEND_TO}?subject=${encodeURIComponent(subj)}`;
   }
-  btnSend.addEventListener("click", sendWalk);
-  btnEditFromSummary.addEventListener("click", () => { state.idx = 0; renderRoom(); show("room"); });
-  btnResetAll.addEventListener("click", () => {
-    if (!confirm(t("discardQ"))) return;
-    clearState();
-    state = initState();
-    renderStart();
-    show("start");
-  });
 
-  // ---------- BACK ----------
-  btnBack.addEventListener("click", () => {
-    if (state.stage === "room") {
-      if (state.idx > 0) { state.idx -= 1; renderRoom(); show("room"); }
-      else { show("start"); }
-    } else if (state.stage === "waste") {
-      state.idx = ROOMS.length - 1; renderRoom(); show("room");
-    } else if (state.stage === "summary") {
-      renderWaste(); show("waste");
-    }
-  });
-
-  // ---------- SERVICE WORKER (offline cache) ----------
+  // ---------- SERVICE WORKER ----------
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
-      navigator.serviceWorker.register("./service-worker.js")
-        .catch(err => console.warn("SW register failed:", err));
+      navigator.serviceWorker.register("./service-worker.js").catch(err => console.warn("SW register failed:", err));
     });
   }
 
   // ---------- LANGUAGE SWITCH ----------
   function applyLang() {
     document.documentElement.lang = LANG === "zh" ? "zh-Hans" : "en";
-    const set = (id, k) => { const el = document.getElementById(id); if (el) el.textContent = t(k); };
-    set("hdrTitle", "title"); set("tStartH", "startH"); set("tDate", "date"); set("tInit", "initials");
-    set("btnResume", "resume"); set("btnNext", "next"); set("btnOk", "ok");
-    set("btnDrying", "drying"); set("btnStorage", "storage"); set("btnEmpty", "empty"); set("btnHarvested", "harvested");
-    set("tWasteH", "wasteH"); set("tWasteP", "wasteP"); set("tBags", "bags"); set("btnToSummary", "toSummary");
-    set("tSumH", "sumH"); set("tSumHdr", "sumHdr"); set("tSumRooms", "sumRooms"); set("tSumWaste", "wasteH");
-    set("btnEditFromSummary", "backEdit"); set("btnResetAll", "discard"); set("btnBack", "back");
-    document.getElementById("langEn").classList.toggle("on", LANG === "en");
-    document.getElementById("langZh").classList.toggle("on", LANG === "zh");
-    populateJump();
-    renderStart();
-    updateFooter();
+    const set = (id, k) => { $(id).textContent = t(k); };
+    set("hdrTitle", "title"); set("tHint", "hint"); set("btnSend", "send"); set("btnReset", "reset");
+    set("tMissH", "missH"); set("tMissP", "missP"); set("btnCheckBack", "checkBack"); set("btnSendAnyway", "sendAnyway");
+    set("tBags", "bags"); set("btnBack", "back");
+    $("headerSub").textContent = `${COMPANY} · ${fmtDate(state.date)}`;
+    ["A", "B", "C"].forEach(x => { $("h" + x).textContent = t("bldg").replace("{x}", x) + (x === "C" ? " · " + t("dryName") : " · " + t("flower")); });
+    $("langEn").classList.toggle("on", LANG === "en");
+    $("langZh").classList.toggle("on", LANG === "zh");
+    renderHome();
   }
   function setLang(l) {
     LANG = l;
     try { localStorage.setItem(LANG_KEY, l); } catch (e) {}
     applyLang();
   }
-  document.getElementById("langEn").addEventListener("click", () => setLang("en"));
-  document.getElementById("langZh").addEventListener("click", () => setLang("zh"));
+  $("langEn").addEventListener("click", () => setLang("en"));
+  $("langZh").addEventListener("click", () => setLang("zh"));
 
-  // ---------- INIT (opens straight to the start screen, no unlock code) ----------
+  // ---------- INIT (opens straight to the room grid, no unlock code) ----------
   applyLang();
-  state.stage = "start";
-  show("start");
+  show("home");
 </script>
 </body>
 </html>
