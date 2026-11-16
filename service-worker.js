@@ -1,10 +1,12 @@
 // A&E Growing Daily Walk — offline cache
 // Bump this version any time index.html changes.
-const CACHE = "ae-walk-v7";
+const CACHE = "ae-walk-v8";
 
 const PRECACHE = [
   "./",
   "./index.html",
+  "./icon-180.png",
+  "./icon-192.png",
   "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js",
   "https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"
 ];
