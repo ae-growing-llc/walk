@@ -361,7 +361,7 @@
   };
 
   // ---------- DATA ----------
-  // sec: "flower" = pull a tag (last 6) · "dry" = drying room / storage · bldg = building letter
+  // sec: "flower" = whiteboard photo (no typing) · "dry" = drying room / storage · bldg = building letter
   // Building A = A1-A6 · Building B = B1 · Building C = Drying Room / Storage
   const ROOMS = [
     { sec: "flower", bldg: "A", name: "A1" }, { sec: "flower", bldg: "A", name: "A2" }, { sec: "flower", bldg: "A", name: "A3" },
@@ -382,7 +382,7 @@
       start: "START WALK", startNew: "START NEW WALK", resume: "RESUME UNFINISHED WALK",
       next: "NEXT →", ok: "OK", drying: "DRYING · PRODUCT HANGING", storage: "STORAGE ONLY · NOTHING HANGING",
       empty: "EMPTY", harvested: "HARVESTED", bldg: "Building {x}", dryName: "Drying Room / Storage",
-      subFlower: "Pull a tag · last 6", subVeg: "Photo of the whiteboard", subDry: "Anything hanging to dry?", subProp: "Confirm status",
+      subFlower: "Pull a tag · last 6", subVeg: "Take a photo of the whiteboard", subDry: "Anything hanging to dry?", subProp: "Confirm status",
       photos: "photos", addAnother: "ADD ANOTHER", roomPhoto: "ROOM PHOTO", boardPhoto: "WHITEBOARD PHOTO",
       processing: "Processing…", photoFail: "photo(s) couldn't be saved. Try a smaller picture.",
       wasteH: "Non-MMJ waste", wasteP: "How many bags of plant / stalk waste went out today?", bags: "bags",
@@ -731,13 +731,11 @@
     inputImage.value           = "";
 
     if (isFlower) {
-      tagCard.style.display      = "block";
+      // photo only: no tag typing. A whiteboard photo is required (or EMPTY / HARVESTED).
       btnNext.style.display      = "flex";
       btnHarvested.style.display = "flex";
-      inputTag.value = (existing && /^\d+$/.test(existing.value)) ? existing.value : "";
-      inputTag.focus({ preventScroll: true });
-      roomSub.textContent = t("subFlower");
-      renderPhotoGrid(); // optional whiteboard photo
+      roomSub.textContent = t("subVeg");
+      renderPhotoGrid();
     } else if (isVeg) {
       btnNext.style.display  = "flex";
       renderPhotoGrid();
@@ -760,24 +758,11 @@
   btnNext.addEventListener("click", () => {
     const r = ROOMS[state.idx];
     if (r.sec === "flower") {
-      const v = inputTag.value.trim();
       const existing = state.results[r.name] || {};
-      const hasPhotos = (existing.images || []).length > 0;
-      if (/^\d{6}$/.test(v)) {
-        saveRoom(v);
+      if ((existing.images || []).length > 0) {
+        if (existing.value !== "PHOTO") saveRoom("PHOTO");
         advance();
-        return;
       }
-      if (hasPhotos) {
-        // no tag but has photos — save with PHOTO marker, keep images
-        saveRoom("PHOTO");
-        advance();
-        return;
-      }
-      // neither — flash red
-      inputTag.focus();
-      inputTag.style.borderColor = "#b91c1c";
-      setTimeout(() => { inputTag.style.borderColor = ""; }, 1200);
       return;
     } else if (r.sec === "veg") {
       const existing = state.results[r.name];
@@ -803,7 +788,7 @@
     await hydrateImages(r.name);
     const res = state.results[r.name] || {};
     const images = res.images || [];
-    const isVeg = r.sec === "veg";
+    const isVeg = r.sec === "veg" || r.sec === "flower"; // photo required
     photoGrid.innerHTML = "";
     images.forEach((img, i) => {
       const tile = document.createElement("div");
