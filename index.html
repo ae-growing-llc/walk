@@ -300,6 +300,7 @@
         <button class="btn btn-empty btn-sm" id="btnEmpty">EMPTY</button>
         <button class="btn btn-harvest btn-sm" id="btnHarvested" style="display:none">HARVESTED</button>
       </div>
+      <div id="harvestNote" style="display:none; text-align:center; color:#b45309; font-size:13px; font-weight:600;"></div>
     </section>
 
 
@@ -382,7 +383,7 @@
       start: "START WALK", startNew: "START NEW WALK", resume: "RESUME UNFINISHED WALK",
       next: "NEXT →", ok: "OK", drying: "DRYING · PRODUCT HANGING", storage: "STORAGE ONLY · NOTHING HANGING",
       empty: "EMPTY", harvested: "HARVESTED", bldg: "Building {x}", dryName: "Drying Room / Storage",
-      subFlower: "Pull a tag · last 6", subVeg: "Take a photo of the whiteboard", subDry: "Anything hanging to dry?", subProp: "Confirm status",
+      subFlower: "Pull a tag · last 6", subVeg: "Take a photo of the whiteboard", harvestNote: "Room harvested? Tap HARVESTED, then erase the whiteboard.", subDry: "Anything hanging to dry?", subProp: "Confirm status",
       photos: "photos", addAnother: "ADD ANOTHER", roomPhoto: "ROOM PHOTO", boardPhoto: "WHITEBOARD PHOTO",
       processing: "Processing…", photoFail: "photo(s) couldn't be saved. Try a smaller picture.",
       wasteH: "Non-MMJ waste", wasteP: "How many bags of plant / stalk waste went out today?", bags: "bags",
@@ -397,7 +398,7 @@
       start: "开始巡查", startNew: "开始新的巡查", resume: "继续未完成的巡查",
       next: "下一步 →", ok: "确认", drying: "正在晾干 · 有产品悬挂", storage: "只有存放 · 没有悬挂",
       empty: "空房", harvested: "已收割", bldg: "{x} 栋", dryName: "晾干房 / 仓库",
-      subFlower: "取一个植株标签 · 输入最后 6 位数字", subVeg: "拍白板照片", subDry: "有产品在晾干吗?", subProp: "确认状态",
+      subFlower: "取一个植株标签 · 输入最后 6 位数字", subVeg: "拍白板照片", harvestNote: "房间收割了?点「已收割」,然后把白板擦干净。", subDry: "有产品在晾干吗?", subProp: "确认状态",
       photos: "张照片", addAnother: "再加一张", roomPhoto: "拍房间照片", boardPhoto: "拍白板照片",
       processing: "处理中…", photoFail: "张照片无法保存,请换小一点的照片。",
       wasteH: "非大麻废弃物", wasteP: "今天运出了多少袋植物 / 茎秆废料?", bags: "袋",
@@ -543,6 +544,7 @@
   const roomSub  = document.getElementById("roomSub");
   const roomBldg = document.getElementById("roomBldg");
   const btnStorage = document.getElementById("btnStorage");
+  const harvestNote = document.getElementById("harvestNote");
   const inputTag = document.getElementById("inputTag");
   const btnEmpty = document.getElementById("btnEmpty");
   const btnNext  = document.getElementById("btnNext");
@@ -722,6 +724,7 @@
     tagCard.style.display      = "none";
     btnNext.style.display      = "none";
     btnHarvested.style.display = "none";
+    harvestNote.style.display  = "none";
     btnOk.style.display        = "none";
     btnDrying.style.display    = "none";
     btnStorage.style.display   = "none";
@@ -734,6 +737,8 @@
       // photo only: no tag typing. A whiteboard photo is required (or EMPTY / HARVESTED).
       btnNext.style.display      = "flex";
       btnHarvested.style.display = "flex";
+      harvestNote.style.display  = "block";
+      harvestNote.textContent    = t("harvestNote");
       roomSub.textContent = t("subVeg");
       renderPhotoGrid();
     } else if (isVeg) {

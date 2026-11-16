@@ -1,6 +1,6 @@
 // A&E Growing Daily Walk — offline cache
 // Bump this version any time index.html changes to force a refresh on devices.
-const CACHE = "ae-walk-v3";
+const CACHE = "ae-walk-v4";
 
 const PRECACHE = [
   "./",
