@@ -264,9 +264,9 @@
         <h1 id="tStartH">Start today's walk</h1>
         <label id="tDate">Date</label>
         <input type="date" id="inputDate" />
-        <div style="height:14px"></div>
-        <label id="tInit">Initials</label>
-        <input type="text" id="inputInitials" value="" maxlength="4" autocapitalize="characters" autocomplete="off" />
+        <!-- initials removed Nov 16, 2026 (hidden input kept so the script needs no other changes) -->
+        <label id="tInit" style="display:none">Initials</label>
+        <input type="hidden" id="inputInitials" value="" />
       </div>
       <button class="btn btn-primary" id="btnStart">START WALK</button>
       <button class="btn btn-ghost" id="btnResume" style="display:none">RESUME UNFINISHED WALK</button>
@@ -669,14 +669,6 @@
   function startWalk() {
     try {
       let initials = (inputInitials.value || "").trim().toUpperCase();
-      if (!initials) {
-        // initials are required: flash the box and stay on this screen
-        inputInitials.focus();
-        inputInitials.style.borderColor = "#b91c1c";
-        setTimeout(() => { inputInitials.style.borderColor = ""; }, 1200);
-        return;
-      }
-      try { localStorage.setItem(INITIALS_KEY, initials); } catch (e) {}
       idbClear().catch(()=>{}); // fresh walk = fresh photo store
       state = initState();
       state.date = inputDate.value || todayISO();
@@ -959,7 +951,7 @@
   }
   function renderSummarySync() {
     const totalPhotos = Object.values(state.results).reduce((sum, r) => sum + ((r && r.images && r.images.length) || 0), 0);
-    summaryHeader.innerHTML = `<strong>${t("date")}:</strong> ${state.date}<br/><strong>${t("initials")}:</strong> ${state.initials}` +
+    summaryHeader.innerHTML = `<strong>${t("date")}:</strong> ${state.date}` +
       (totalPhotos ? `<br/><strong>${t("photosCap")}:</strong> ${totalPhotos}` : "");
     btnSend.textContent = totalPhotos ? `📄 ${t("buildPdf")} · 📷 ${totalPhotos}` : `📄 ${t("buildPdf")}`;
     summaryRooms.innerHTML = "";
@@ -1130,7 +1122,7 @@
       if (!small) {
         doc.setFont("helvetica", "bold");
         doc.setFontSize(10);
-        doc.text(`${state.date} · ${state.initials}`, W - M, 28, { align: "right" });
+        doc.text(`${state.date}`, W - M, 28, { align: "right" });
       }
       doc.setTextColor(0);
     }
@@ -1194,7 +1186,7 @@
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9);
     doc.setTextColor(102);
-    doc.text(`Recorded by: ${state.initials}`, M, y + 22);
+    doc.text("Recorded by:", M, y + 22);
     doc.text(`Date: ${state.date}`, M + 260, y + 22);
     doc.setTextColor(0);
 
