@@ -1,6 +1,6 @@
 // A&E Growing Daily Walk — offline cache
-// Bump this version any time index.html changes to force a refresh on devices.
-const CACHE = "ae-walk-v6";
+// Bump this version any time index.html changes.
+const CACHE = "ae-walk-v7";
 
 const PRECACHE = [
   "./",
@@ -12,12 +12,13 @@ const PRECACHE = [
 self.addEventListener("install", event => {
   event.waitUntil(
     caches.open(CACHE).then(cache =>
-      // Use no-cors for cross-origin scripts so they cache as opaque responses.
-      Promise.all(PRECACHE.map(url =>
-        fetch(new Request(url, { mode: url.startsWith("http") ? "no-cors" : "same-origin" }))
+      Promise.all(PRECACHE.map(url => {
+        const cross = url.startsWith("http");
+        // cache: "reload" skips the browser's HTTP cache so a new version never precaches a stale page
+        return fetch(new Request(url, cross ? { mode: "no-cors" } : { cache: "reload" }))
           .then(resp => cache.put(url, resp))
-          .catch(err => console.warn("precache miss", url, err))
-      ))
+          .catch(err => console.warn("precache miss", url, err));
+      }))
     ).then(() => self.skipWaiting())
   );
 });
@@ -33,19 +34,35 @@ self.addEventListener("activate", event => {
 self.addEventListener("fetch", event => {
   const req = event.request;
   if (req.method !== "GET") return;
+  const sameOrigin = new URL(req.url).origin === self.location.origin;
 
-  // Strategy: cache-first for the page + libs, with network fallback that updates the cache.
-  event.respondWith(
-    caches.match(req, { ignoreSearch: req.mode === "navigate" }).then(cached => {
-      if (cached) return cached;
-      return fetch(req).then(resp => {
-        // Only cache 200s and opaque (cross-origin no-cors) responses
-        if (resp && (resp.status === 200 || resp.type === "opaque")) {
+  if (sameOrigin) {
+    // The app page: network first (always the newest version when online), cache when offline.
+    event.respondWith(
+      fetch(req, { cache: "no-store" }).then(resp => {
+        if (resp && resp.status === 200) {
           const copy = resp.clone();
-          caches.open(CACHE).then(c => c.put(req, copy)).catch(()=>{});
+          caches.open(CACHE).then(c => c.put(req.mode === "navigate" ? "./index.html" : req, copy)).catch(() => {});
         }
         return resp;
-      }).catch(() => cached); // last-ditch
+      }).catch(() =>
+        caches.match(req, { ignoreSearch: true }).then(hit => hit || caches.match("./index.html"))
+      )
+    );
+    return;
+  }
+
+  // Libraries from the CDN: cache first.
+  event.respondWith(
+    caches.match(req).then(cached => {
+      if (cached) return cached;
+      return fetch(req).then(resp => {
+        if (resp && (resp.status === 200 || resp.type === "opaque")) {
+          const copy = resp.clone();
+          caches.open(CACHE).then(c => c.put(req, copy)).catch(() => {});
+        }
+        return resp;
+      });
     })
   );
 });
